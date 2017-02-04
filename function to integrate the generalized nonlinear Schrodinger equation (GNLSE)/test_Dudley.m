@@ -30,11 +30,16 @@ RT(T<0) = 0;          % heaviside step function
 % === simulation parameters
 nsaves = 200;     % number of length steps to save field at
 % propagate field
+% Z: Z location grid
+% AT: amplitude in temporal domain at different location
+% AW: amplitude in frequency domain at different location
+% W: frequency grid
 [Z, AT, AW, W] = gnlse(T, A, w0, gamma, betas, loss, ...
                        fr, RT, flength, nsaves);
 % === plot output
 figure();
 lIW = 10*log10(abs(AW).^2); % log scale spectral intensity
+% max(lIW);       % 1xn
 mlIW = max(max(lIW));       % max value, for scaling plot
 WL = 2*pi*c./W; iis = (WL>400 & WL<1350); % wavelength grid
 subplot(1,2,1);             
