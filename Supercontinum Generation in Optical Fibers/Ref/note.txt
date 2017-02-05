@@ -1,0 +1,11 @@
+pseudo-spectral methods
+We close this section with a brief discussion of the numerical techniques used to
+solve these equations. The workhorse of numerical methods in nonlinear fibre optics
+is the split-step Fourier method, which essentially involves alternating between the
+time- and frequency-domains in order to solve the nonlinear and linear terms in
+Eq. (3.2) or Eq. (3.12) in the most natural and efficient way possible. This technique
+is in the class of pseudo-spectral methods, which are commonly employed to deal
+with stiff differential equations containing diffractive or dispersive terms. Using this
+technique, the linear term is exactly accounted for in each step, as it is completely
+integrable, whereas the nonlinear term is usually integrated using Runge¨CKutta
+techniques.
