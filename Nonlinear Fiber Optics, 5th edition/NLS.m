@@ -29,6 +29,10 @@ tau = (-nt/2:nt/2-1)*dtau;
 % temporal grid
 omega = (pi/Tmax) * [(0:nt/2-1) (-nt/2:-1)]; % frequency grid(already shifted, to be coincidence with ifft(uu))
 
+% Note that the definitions of the FFT and IFFT 
+% in Matlab are the opposite to ours. Therefore,
+% in the code listed below we use IFFT for the FFT and vice versa.
+
 % very time we do a fft() or ifft(), fftshift() should follow,
 % very time we use omega to plot, fftshift() should follow.
 
@@ -41,8 +45,8 @@ end
 
 %---Plot input pulse shape and spectrum
 % temp = fftshift(fft(uu)).*(nt*dtau)/sqrt(2*pi); % spectrum
-temp = fftshift(fft(uu)).*(2*Tmax)/sqrt(2*pi); % spectrum
-% temp = fftshift(fft(uu)).*(nt*dtau)/sqrt2*pi); % spectrum
+temp = fftshift(ifft(uu)).*(2*Tmax)/sqrt(2*pi); % spectrum
+% temp = fftshift(ifft(uu)).*(nt*dtau)/sqrt2*pi); % spectrum
 % fft that uses rad/s as frequency unit will lead to scaling in amplitude.
 % If we want to display the results in the frequency domain, elimination should be done. As shown in the above line.
 % If we want to ifft back, just keep it. As shown in the MAIN loop.
@@ -71,13 +75,13 @@ hhz = 1i*N^2*deltaz; 	 % nonlinear phase factor
 % first half step nonlinear
 temp = uu.*exp(abs(uu).^2.*hhz/2);	% note hhz/2
 for n=1:step_num
-	 f_temp = fft(temp).*dispersion;
-	 uu = ifft(f_temp);
+	 f_temp = ifft(temp).*dispersion;
+	 uu = fft(f_temp);
 	 temp = uu.*exp(abs(uu).^2.*hhz);	% (B.1)
 end
 uu = temp.*exp(-abs(uu).^2.*hhz/2); 	 % Final field, step back hhz/2
-% temp = fftshift(fft(uu)).* (nt*dtau)/sqrt(2*pi); % Final spectrum
-temp = fftshift(fft(uu)).* (2*Tmax)/sqrt(2*pi); % Final spectrum
+% temp = fftshift(ifft(uu)).* (nt*dtau)/sqrt(2*pi); % Final spectrum
+temp = fftshift(ifft(uu)).* (2*Tmax)/sqrt(2*pi); % Final spectrum
 % *************** [ End of MAIN Loop ] **************
 
 %----Plot output pulse shape and spectrum

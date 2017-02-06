@@ -31,8 +31,8 @@ RT(T<0) = 0;          % heaviside step function
 nsaves = 200;     % number of length steps to save field at
 % propagate field
 % Z: Z location grid
-% AT: temporal envelope at different location
-% AW: spectral envelope at different location
+% AT: temporal envelope(complex) at different location
+% AW: spectral envelope(complex) at different location
 % W: frequency grid
 [Z, AT, AW, W] = gnlse(T, A, w0, gamma, betas, loss, ...
                        fr, RT, flength, nsaves);
