@@ -26,11 +26,11 @@ L = fftshift(L); W = fftshift(W); % shift to fft space
 function R = rhs(z, AW)
   AT = fft(AW.*exp(L*z));         % time domain field
   IT = abs(AT).^2;                % time domain intensity
-  if (length(RT) == 1) || (abs(fr) < eps) % no Raman case
-    M = ifft(AT.*IT);             % response function
-  else
-    RS = dT*fr*fft(ifft(IT).*RW); % Raman convolution
-    M = ifft(AT.*((1-fr).*IT + RS));% response function
+  if (length(RT) == 1) || (abs(fr) < eps) % no Raman case % if the input Raman response was defined as a scalar, in which case no Raman convolution is computed
+    M = ifft(AT.*IT);             % Kerr response function
+  else	% Instead, if a full Raman response function was passed in as RT
+    RS = dT*fr*fft(ifft(IT).*RW); % Raman convolution as per Eq. (3.17), fr is shown in Eq. (3.16)
+    M = ifft(AT.*((1-fr).*IT + RS));% response function as in Eq. (3.16), AT is shown in Eq. (3.13)
   end
   R = 1i*gamma*W.*M.*exp(-L*z);   % full RHS of Eq. (3.13)
 end
@@ -47,7 +47,7 @@ Z = linspace(0, flength, nsaves);  % select output z points
 options = odeset('RelTol', 1e-5, 'AbsTol', 1e-12, ...
                  'NormControl', 'on', ...
                  'OutputFcn', @report);
-[Z, AW] = ode45(@rhs, Z, ifft(A), options); % run integrator
+[Z, AW] = ode45(@rhs, Z, ifft(A), options); % run integrator % [T,Y] = ode45(odefun,tspan,y0,options) 				 
 % === process output of integrator
 AT = zeros(size(AW(1,:)));
 for i = 1:length(AW(:,1))
