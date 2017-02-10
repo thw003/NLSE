@@ -35,7 +35,6 @@ N = 1024;			% number of samples in a block. Tblk = N * Ts = 102.4 ps
 
 % generate an initial block of signal Ein
 % Ein = 1e-3*gausswin(N,2);
-% Generate an N-by-1 matrix of complex white Gaussian noise having power -40 dBW. 
 Ein = wgn(N,1,-40,'complex');
 
 Eout = Ein;
