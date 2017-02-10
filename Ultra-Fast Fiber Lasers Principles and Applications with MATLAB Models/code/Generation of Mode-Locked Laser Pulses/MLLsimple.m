@@ -1,6 +1,6 @@
 % MLLsimple.m
 % simple model of mode locked laser
-% written by Lam Quoc Huy
+% written by Saiyu Luo
 
 global Ts;			% sampling period
 global Fcar;		% carrier frequency (optical frequency)
@@ -34,7 +34,6 @@ N = 1024;			% number of samples in a block. Tblk = N * Ts = 102.4 ps
   atten = 1/10^(loss/20);
 
 % generate an initial block of signal Ein
-% Ein = 1e-3*gausswin(N,2);
 % Generate an N-by-1 matrix of complex white Gaussian noise having power -40 dBW. 
 Ein = wgn(N,1,-40,'complex');
 
@@ -42,15 +41,11 @@ Eout = Ein;
 Eo = Ein;
 N_pass = 500;
 for ii = 1:N_pass
-	% [Eo,G] = amp_simp(Eo,GssdB,PoutsatdB,NF);
 	[Eo,G] = AmpSimpNonoise(Eo,GssdB,PoutsatdB); % no noise
-	Eo = fft(Eo,N*4);
-	% Eo = filter_bessel(Eo,f3dB,G);
-	% Eo = filter_gaus1(Eo,f3dB);
+	Eo = fft(Eo);
 	Eo = filter_gaus(Eo,f3dB,1);
 	Eo = ifft(Eo);
 	Eo = modInt(Eo(1:N),alpha,epsilon,m,fm,0.5);
-	% Eo = modPhase(Eo(1:N),m,fm);
 	Eo = Eo*atten;
 	if mod(ii,N_pass/50)==0
 		Eout = [Eout , Eo];

@@ -50,6 +50,7 @@ end
 
 % generate an initial block of signal Ein
 % Ein = 1e-13*gausswin(N,2);
+% Generate an N-by-1 matrix of complex white Gaussian noise having power -40 dBW. 
 Ein = wgn(N,1,-40,'complex');
 
 Eout = Ein;
