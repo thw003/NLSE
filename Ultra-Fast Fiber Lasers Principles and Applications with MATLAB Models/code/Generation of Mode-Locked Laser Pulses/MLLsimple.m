@@ -72,6 +72,7 @@ dPhi = angle(Eout(2:N,N1)) - angle(Eout(1:N-1,N1));
 % figure (2);
 % plot(dPhi);
 
+% return the Full Width at Half Maximum of the pulse x
 Tp = fwhm(Iout(:,N1))*Ts;
 pulse_alpha = 2*log(2)/(Tp^2);
 pulse_beta = (dPhi(N/2+100) - dPhi(N/2-100))/200/Ts/Ts;
