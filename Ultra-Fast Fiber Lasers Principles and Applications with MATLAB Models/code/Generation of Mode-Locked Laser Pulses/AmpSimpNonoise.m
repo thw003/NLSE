@@ -31,8 +31,16 @@ err = 10;
 while (err > tol)
 	G1 = Gss*exp(-(G-1)*Pin/Psat);
 	err = G1 - G;
+	n = 1;
 	if err>0
+		% fprintf('%05.1g %% complete\n', z/flength*100);
+		fprintf('err: %.2f, ', err);
+		%一般浮点数用%f 或者%e
+		%f显示小数形式
+		%e显示科学计数法形式
+		%g是两者的综合，会根据数据选择适当的显示方式
 		if step <0
+			fprintf('step: %.3f;\n', step);
 			step = -step/2;
 		end
 	else

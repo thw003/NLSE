@@ -1,6 +1,8 @@
 % MLLsimple.m
 % simple model of mode locked laser
 % written by Saiyu Luo
+clear;
+clc;
 
 global Ts;			% sampling period
 global Fcar;		% carrier frequency (optical frequency)
@@ -76,7 +78,7 @@ dPhi = angle(Eout(2:N,N1)) - angle(Eout(1:N-1,N1));
 Tp = fwhm(Iout(:,N1))*Ts;
 pulse_alpha = 2*log(2)/(Tp^2);
 pulse_beta = (dPhi(N/2+100) - dPhi(N/2-100))/200/Ts/Ts;
-chirp = pulse_beta/pulse_alpha
+%  chirp = pulse_beta/pulse_alpha
 
 Kmag = 8;
 Nplot = 100;
@@ -99,6 +101,6 @@ plot(freq,Tfil,'r');
 % plot the gaussian fit curve
 % gaussFit(Iout(:,N1));
 
-pulseBW = fwhm(Ioutfreq(ind))/Ts/N/Kmag
-Tp = fwhm(Iout(:,N1))*Ts
-TBP = pulseBW*Tp
+%  pulseBW = fwhm(Ioutfreq(ind))/Ts/N/Kmag
+%  Tp = fwhm(Iout(:,N1))*Ts
+%  TBP = pulseBW*Tp
