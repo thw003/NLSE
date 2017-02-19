@@ -42,9 +42,9 @@ fprintf('saturated gain, G = Gss = %.1f times\n', G);
 err = 10;
 fprintf('set initial error value, err = %.3f times\n', err);
 
-n1 = 1;
-n2 = 1;
-n3 = 1;
+n1 = 0;
+n2 = 0;
+n3 = 0;
 
 fprintf('\nBegin loop: while (err > tol)\n\n');
 while (err > tol)
@@ -85,8 +85,8 @@ while (err > tol)
 	G = G + step;
 
     fprintf('\tG = G + step = %.3f times\n', G);
-    fprintf('\tround %d\n', n3);
     n3 = n3 + 1;
+    fprintf('\tround %d\n', n3);
     fprintf('\n');
 end
 
