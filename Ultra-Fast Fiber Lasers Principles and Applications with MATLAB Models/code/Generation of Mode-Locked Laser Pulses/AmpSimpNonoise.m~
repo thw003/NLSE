@@ -92,8 +92,8 @@ end
 
 fprintf('End loop\n\n');
 
-fprintf('number of err > 0: %d;\n', n1);
-fprintf('number of err < 0: %d;\n', n2);
+fprintf('number of err>0: %d;\n', n1);
+fprintf('number of err<0: %d;\n', n2);
 
 G = G - step;
 Eout = sqrt(G)*Ein;

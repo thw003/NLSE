@@ -13,7 +13,7 @@ N = size(Ein,1);
 k = (1:N) -1;
 k((N/2+1):N) = k((N/2+1):N) - N;
 % k = 0, 1, 2, ... , N/2-1(511), -N/2(-512), -N/2+1(-511), ... -2, -1
-k = k';
+k = k'
 n = 2*n;
 % Eout = Ein.*exp(-log(sqrt(2))*(2/f3dB/Ts/N)^n*(k.^n));
 % n order gaussian filter
