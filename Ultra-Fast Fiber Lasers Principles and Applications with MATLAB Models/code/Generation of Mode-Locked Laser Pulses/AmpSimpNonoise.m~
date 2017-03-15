@@ -49,8 +49,12 @@ n3 = 0;
 fprintf('\nBegin loop: while (err > tol)\n\n');
 while (err > tol)
     fprintf('\terr: %.3f times\n', err);
-	G1 = Gss*exp(-(G-1)*Pin/Psat);
-    fprintf('\tG1 = Gss*exp(-(G-1)*Pin/Psat) = %.3f times\n', G1);
+	% G1 = Gss*exp(-(G-1)*Pin/Psat);    
+	G1 = Gss*exp(-(G-1)/G*Pin/Psat);    % Eq. (4.29)
+                                        % G is the amplification factor
+                                        % Gss is the unsaturated amplifier gain or small signal gain
+                                        % Pin and Psat are the laser power and saturation power, respectively
+    fprintf('\tG1 = Gss*exp(-(G-1)/G*Pin/Psat) = %.3f times\n', G1);
     fprintf('\tG: %.3f times\n', G);
 	err = G1 - G;
     fprintf('\terr = G1 - G = %.3f times\n', err);
@@ -93,7 +97,7 @@ end
 fprintf('End loop\n\n');
 
 fprintf('number of err > 0: %d;\n', n1);
-fprintf('number of err < 0: %d;\n', n2);
+fprintf('number of err < 0: %d;\n\n', n2);
 
 G = G - step;
 Eout = sqrt(G)*Ein;

@@ -1,4 +1,5 @@
 function Eout = filter_gaus(Ein,f3dB,n)
+% Eq. (4.9)?
 % filter_gaus(Ein,f3dB,n)
 % filter the input signal with the n order gaussian filter
 % written by Lam Quoc Huy

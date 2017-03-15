@@ -44,8 +44,6 @@ Eo = Ein;
 % N_pass = 500;
 N_pass = 50;
 for ii = 1:N_pass
-    fprintf('----------------------------\n', ii);
-    fprintf('pass %d begin\n', ii);
 	[Eo,G] = AmpSimpNonoise(Eo,GssdB,PoutsatdB); % no noise
 	Eo = fft(Eo);
 	Eo = filter_gaus(Eo,f3dB,1);
@@ -55,8 +53,7 @@ for ii = 1:N_pass
 	if mod(ii,N_pass/50)==0
 		Eout = [Eout, Eo];
 	end
-    fprintf('pass %d end\n', ii);
-    fprintf('----------------------------\n', ii);
+    fprintf('pass %d\n', ii);
 end
 Eout = Eout/atten;
 close all
