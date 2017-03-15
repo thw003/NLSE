@@ -12,5 +12,10 @@ function Eout = modInt_theory(Ein,m,fm)
 global Ts;
 N = size(Ein,1);
 k = (1:N)';
+% k-N/2
+% -511
+% -510
+% ...
+% 512
 Eout = Ein.*exp(-m/4*(2*pi*fm*Ts)^2*(k-N/2).*(k-N/2));
 end

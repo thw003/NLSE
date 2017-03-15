@@ -61,7 +61,6 @@ for ii = 1:N_pass
 end
 Eout = Eout/atten;
 close all
-
 % -------------- Display the results ---------
 % mesh (abs(Eout'),'edgecolor','black','meshstyle','row', 'facecolor','none');
 Iout = Eout.*conj(Eout);
@@ -91,7 +90,6 @@ Kmag = 8;
 Nplot = 100;
 Eoutfreq = fft(Eout(:,N1),N*Kmag);
 Ioutfreq = Eoutfreq.*conj(Eoutfreq)/(N*Kmag)^2;
-
 figure(2);
 ind = (- Nplot/2 : Nplot/2)';
 freq = ind/Ts/N/Kmag;
