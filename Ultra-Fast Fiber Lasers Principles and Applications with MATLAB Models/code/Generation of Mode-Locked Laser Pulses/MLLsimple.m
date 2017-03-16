@@ -17,7 +17,7 @@ N = 1024;			% number of samples in a block. Tblk = N * Ts = 102.4 ps
 % Amplifier parameters:
   GssdB = 20;		% (dB)
   PoutsatdB = 10;	% (dBm)
-  NF = 8;			% (dB)
+  % NF = 8;			% (dB)
 
 % filter bandwidth
   lamda3dB = 1e-9;	% m
@@ -76,10 +76,11 @@ xlabel('T (0.1ps)');
 ylabel('Pass number');
 zlabel('intensity (W)');
 
-N1 = size(Eout,2);
+% N1 = size(Eout,2);
+N1 = 1;
 dPhi = angle(Eout(2:N,N1)) - angle(Eout(1:N-1,N1));
-% figure (2);
-% plot(dPhi);
+figure (2);
+plot(fftshift(dPhi));
 
 % return the Full Width at Half Maximum of the pulse x
 Tp = fwhm(Iout(:,N1))*Ts;
@@ -92,7 +93,7 @@ Nplot = 100;
 Eoutfreq = fft(Eout(:,N1),N*Kmag);
 Ioutfreq = Eoutfreq.*conj(Eoutfreq)/(N*Kmag)^2;
 
-figure(2);
+figure(3);
 ind = (- Nplot/2 : Nplot/2)';
 freq = ind/Ts/N/Kmag;
 ind = mod((ind + N*Kmag),N*Kmag)+1;
