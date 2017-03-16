@@ -17,5 +17,5 @@ k = (1:N)';
 % -510
 % ...
 % 512
-Eout = Ein.*exp(-m/4*(2*pi*fm*Ts)^2*(k-N/2).*(k-N/2));
+Eout = Ein.*exp(-m/4*(2*pi*fm*Ts)^2*(k-N/2).*(k-N/2));  % Eq. (2.12)
 end

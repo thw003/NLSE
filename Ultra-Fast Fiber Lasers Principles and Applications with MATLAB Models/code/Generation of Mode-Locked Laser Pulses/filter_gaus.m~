@@ -11,7 +11,7 @@ N = size(Ein,1);
 % the k element in the Ein corresponds to the frequency of
 %	(k-N/2)/Ts/N
 k = (1:N) -1;
-k((N/2+1):N) = k((N/2+1):N) - N;    % something like fftshift
+k((N/2+1):N) = k((N/2+1):N) - N;
 % k = 0, 1, 2, ... , N/2-1(511), -N/2(-512), -N/2+1(-511), ... -2, -1
 k = k';
 n = 2*n;

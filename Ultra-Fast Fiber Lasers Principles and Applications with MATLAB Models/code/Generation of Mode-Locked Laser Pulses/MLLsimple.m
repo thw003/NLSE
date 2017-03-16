@@ -21,15 +21,21 @@ N = 1024;			% number of samples in a block. Tblk = N * Ts = 102.4 ps
 
 % filter bandwidth
   lamda3dB = 1e-9;	% m
-  f3dB = lamda3dB*(1e11/0.8e-9);
+  % f3dB = lamda3dB*(1e11/0.8e-9);  % for lamda = 1550e-9
+  f3dB = lamda3dB*c_const/lamda^2;  % for arbitrary lamda
+
+% filter order
+    n=1;
 
 % modulator parameters
   alpha = -0.07;
   epsilon = 40;		% (dB) extinction ratio
   
 % modulation parameters
-  m = 0.5;			% modulation index
-  fm = 10e9;		% modulation frequency
+  m = 0.5;			% modulation index, by increasing it, the spectra is broadened, and the pulse is shortened.
+  fm = 10e10;		% modulation frequency, 
+                    % when it is small than f3dB, when increasing it, the spectra is broadened and the pulse is shortened.
+                    % while it exceed f3dB, it will only modulate single frequency, pulse will not form.
 
 % Loss
   loss = 10;			% dB
@@ -41,20 +47,21 @@ Ein = wgn(N,1,-40,'complex');
 
 Eout = Ein;
 Eo = Ein;
-% N_pass = 500;
-N_pass = 50;
+N_pass = 500;
+% N_pass = 50;
 for ii = 1:N_pass
     fprintf('----------------------------\n', ii);
     fprintf('pass %d begin\n', ii);
 	[Eo,G] = AmpSimpNonoise(Eo,GssdB,PoutsatdB); % no noise
 	Eo = fft(Eo);
-	Eo = filter_gaus(Eo,f3dB,1);
+	Eo = filter_gaus(Eo,f3dB,n);
 	Eo = ifft(Eo);
 	% Eo = modInt(Eo(1:N),alpha,epsilon,m,fm,0.5);
-	Eo = modInt_theory(Eo(1:N),m,fm);
+	Eo = modInt_theory(Eo(1:N),m,fm);   % Eo(1:N) is a abbreviation for Eo(1:N,1), which represents the 1'th row to the N'th row, 1th column.
+                                        % A(a:b,c:d) represents the overlay of a'th row to b'th row and c'th column to d'th column.
 	Eo = Eo*atten;
-	if mod(ii,N_pass/50)==0
-		Eout = [Eout, Eo];
+	if mod(ii,N_pass/50)==0 % display part of the N_pass
+		Eout = [Eout, Eo];  % add noise
 	end
     fprintf('pass %d end\n', ii);
     fprintf('----------------------------\n', ii);
@@ -76,30 +83,35 @@ xlabel('T (0.1ps)');
 ylabel('Pass number');
 zlabel('intensity (W)');
 
-% N1 = size(Eout,2);
-N1 = 1;
-dPhi = angle(Eout(2:N,N1)) - angle(Eout(1:N-1,N1));
-figure (2);
-plot(fftshift(dPhi));
+N1 = size(Eout,2);
+% N1 = 5;
+% dPhi = angle(Eout(2:N,N1)) - angle(Eout(1:N-1,N1));
+% figure (2);
+% plot(dPhi);
+% plot(fftshift(dPhi));
 
 % return the Full Width at Half Maximum of the pulse x
-Tp = fwhm(Iout(:,N1))*Ts;
-pulse_alpha = 2*log(2)/(Tp^2);
-pulse_beta = (dPhi(N/2+100) - dPhi(N/2-100))/200/Ts/Ts;
+% Tp = fwhm(Iout(:,N1))*Ts;
+% pulse_alpha = 2*log(2)/(Tp^2);
+% pulse_beta = (dPhi(N/2+100) - dPhi(N/2-100))/200/Ts/Ts;
 %  chirp = pulse_beta/pulse_alpha
 
-Kmag = 8;
-Nplot = 100;
-Eoutfreq = fft(Eout(:,N1),N*Kmag);
+Kmag = 6;   % this factor is proportional to the refinement (interval between points) of the transformed frequency data;
+            % the total frequency range is determined by the total time range and will not be changed. By changing Kmag, we are changing the number of points in the frequency domain, thus the refinement.
+Nplot = 100;    % plotted frequency points, it determines the plotted frequency range, not the refinement. 
+                % this factor is related to the index of the frequency points
+Eoutfreq = fft(Eout(:,N1),N*Kmag);  % take the last pulse and transform it to frequency domain
 Ioutfreq = Eoutfreq.*conj(Eoutfreq)/(N*Kmag)^2;
 
-figure(3);
-ind = (- Nplot/2 : Nplot/2)';
-freq = ind/Ts/N/Kmag;
-ind = mod((ind + N*Kmag),N*Kmag)+1;
+figure(2);
+ind = (- Nplot/2 : Nplot/2)';   % index
+delta_freq = 1/(Ts*N*Kmag); % it determines the refinement in the frequency domain.
+% freq = ind/Ts/N/Kmag;
+freq = ind*delta_freq;
+ind = mod((ind + N*Kmag),N*Kmag)+1; % this step just turn index into positive ones, and complete the fftshift step;
+                                    % if not pluse 1, index will contain 0, but the indices of MATLAB must be real positive integers.
 plot(freq,Ioutfreq(ind));
 
-n=1;
 n = 2*n;
 
 Tfil = exp(-log(2)*(2/f3dB*freq).^n);	% n order gaussian filter VPI
@@ -110,6 +122,6 @@ plot(freq,Tfil,'r');
 % plot the gaussian fit curve
 % gaussFit(Iout(:,N1));
 
-%  pulseBW = fwhm(Ioutfreq(ind))/Ts/N/Kmag
-%  Tp = fwhm(Iout(:,N1))*Ts
-%  TBP = pulseBW*Tp
+pulseBW = fwhm(Ioutfreq(ind))/Ts/N/Kmag
+Tp = fwhm(Iout(:,N1))*Ts
+TBP = pulseBW*Tp
