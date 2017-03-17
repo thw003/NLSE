@@ -8,11 +8,11 @@ global Ts;			% sampling period
 global Fcar;		% carrier frequency (optical frequency)
 c_const = 3e8;		% speed of light
 
-lamda = 640e-9;	% m
+lamda = 639.5e-9;	% m
 Fcar = c_const/lamda;
 
 Ts = 0.1e-12;		% 0.1 ps
-N = 1024;			% number of samples in a block. Tblk = N * Ts = 102.4 ps
+N = 2^14;			% number of samples in a block. Tblk = N * Ts = 102.4 ps
 
 % Amplifier parameters:
   GssdB = 20;		% (dB)
@@ -20,18 +20,18 @@ N = 1024;			% number of samples in a block. Tblk = N * Ts = 102.4 ps
   % NF = 8;			% (dB)
 
 % filter bandwidth
-  lamda3dB = 0.2e-9;	% m
+  lamda3dB = 0.69e-9;	% m
   % f3dB = lamda3dB*(1e11/0.8e-9);  % for lamda = 1550e-9
   f3dB = lamda3dB*c_const/lamda^2;  % for arbitrary lamda
 
 % filter order
     n=1;
 % index of the amount of gain line splitting
-    shift = 6;
+    shift = 20;
 
 % modulator parameters
-  alpha = -0.07;
-  epsilon = 40;		% (dB) extinction ratio
+  % alpha = -0.07;
+  % epsilon = 40;		% (dB) extinction ratio
   
 % modulation parameters
   m = 0.5;			% modulation index, by increasing it, the spectra is broadened, and the pulse is shortened.
@@ -51,8 +51,7 @@ Ein = wgn(N,1,-40,'complex');
 
 Eout = Ein;
 Eo = Ein;
-N_pass = 10000;
-% N_pass = 50;
+N_pass = 200;
 for ii = 1:N_pass
     %% fprintf('----------------------------\n', ii);
     %% fprintf('pass %d begin\n', ii);
@@ -62,18 +61,18 @@ for ii = 1:N_pass
 	% Eo = filter_gaus_stark_shift(Eo,f3dB,shift);
 	Eo = filter_lorentz_stark_shift(Eo,f3dB,shift);
 	Eo = ifft(Eo);
+
 	% Eo = modInt(Eo(1:N),alpha,epsilon,m,fm,0.5);
 	% Eo = modInt_theory(Eo(1:N),m,fm);     % Eo(1:N) is a abbreviation for Eo(1:N,1), which represents the 1'th row to the N'th row, 1th column.
                                             % A(a:b,c:d) represents the overlay of a'th row to b'th row and c'th column to d'th column.
                                             % multiply by a gaussian-like filter in the time domain
 
 	% Eo = modInt(Eo,alpha,epsilon,m,fm,0.5);
-	Eo = modInt_theory(Eo,m,fm);
+	%% Eo = modInt_theory(Eo,m,fm);    
 
-	Eo = modInt_theory(Eo,m,fm);    
 	Eo = Eo*atten;
 	if mod(ii,N_pass/50)==0 % display part of the N_pass
-		Eout = [Eout, Eo];  % add Eo to Eout, including noise
+		Eout = [Eout, Eo];  % add Eo to Eout. including noise, so the column of Eout is one more.
 	end
     %% fprintf('pass %d end\n', ii);
     %% fprintf('----------------------------\n', ii);
@@ -108,7 +107,7 @@ N1 = size(Eout,2);
 % pulse_beta = (dPhi(N/2+100) - dPhi(N/2-100))/200/Ts/Ts;
 %  chirp = pulse_beta/pulse_alpha
 
-Kmag = 8;   % this factor is proportional to the refinement (interval between points) of the transformed frequency data;
+Kmag = 1;   % this factor is proportional to the refinement (interval between points) of the transformed frequency data;
             % the total frequency range is determined by the total time range and will not be changed. By changing Kmag, we are changing the number of points in the frequency domain, thus the refinement.
 Nplot = 100;    % plotted frequency points, it determines the plotted frequency range, not the refinement. 
                 % this factor is related to the index of the frequency points
@@ -129,8 +128,8 @@ n = 2*n;
 
 shift = shift * Kmag;    % freq is actually be refined, so we should tune shift fitst by multiplying with Kmag
 % Tfil = (exp(-log(2)*(2/f3dB*(freq-shift*delta_freq)).^n)+exp(-log(2)*(2/f3dB*(freq+shift*delta_freq)).^n))/2;
-Tfil =(1./((f3dB/2)^2+(freq-shift*delta_freq).^2) + ...
-       1./((f3dB/2)^2+(freq+shift*delta_freq).^2))*f3dB/(2*pi)/2; 
+Tfil = 1./((f3dB/2)^2+(freq-shift*delta_freq).^2) + ...
+       1./((f3dB/2)^2+(freq+shift*delta_freq).^2); 
 Tfil = Tfil/max(Tfil);  % normalization
 hold on
 plot(freq,Tfil,'r');
