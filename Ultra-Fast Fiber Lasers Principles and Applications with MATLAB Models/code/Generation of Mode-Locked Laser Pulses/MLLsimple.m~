@@ -8,7 +8,7 @@ global Ts;			% sampling period
 global Fcar;		% carrier frequency (optical frequency)
 c_const = 3e8;		% speed of light
 
-lamda = 1550e-9;	% m
+lamda = 640e-9;	% m
 Fcar = c_const/lamda;
 
 Ts = 0.1e-12;		% 0.1 ps
@@ -20,14 +20,14 @@ N = 1024;			% number of samples in a block. Tblk = N * Ts = 102.4 ps
   % NF = 8;			% (dB)
 
 % filter bandwidth
-  lamda3dB = 1e-9;	% m
+  lamda3dB = 0.2e-9;	% m
   % f3dB = lamda3dB*(1e11/0.8e-9);  % for lamda = 1550e-9
   f3dB = lamda3dB*c_const/lamda^2;  % for arbitrary lamda
 
 % filter order
     n=1;
 % index of the amount of gain line splitting
-    shift = 10
+    shift = 6
 
 % modulator parameters
   alpha = -0.07;
@@ -102,7 +102,7 @@ N1 = size(Eout,2);
 % pulse_beta = (dPhi(N/2+100) - dPhi(N/2-100))/200/Ts/Ts;
 %  chirp = pulse_beta/pulse_alpha
 
-Kmag = 3;   % this factor is proportional to the refinement (interval between points) of the transformed frequency data;
+Kmag = 8;   % this factor is proportional to the refinement (interval between points) of the transformed frequency data;
             % the total frequency range is determined by the total time range and will not be changed. By changing Kmag, we are changing the number of points in the frequency domain, thus the refinement.
 Nplot = 100;    % plotted frequency points, it determines the plotted frequency range, not the refinement. 
                 % this factor is related to the index of the frequency points
@@ -116,14 +116,17 @@ delta_freq = 1/(Ts*N*Kmag); % it determines the refinement in the frequency doma
 freq = ind*delta_freq;
 ind = mod((ind + N*Kmag),N*Kmag)+1; % this step just turn index into positive ones, and complete the fftshift step;
                                     % if not pluse 1, index will contain 0, but the indices of MATLAB must be real positive integers.
+% Ioutfreq = Ioutfreq/max(Ioutfreq);                                    
 plot(freq,Ioutfreq(ind));
 
 n = 2*n;
 
+shift = shift * Kmag    % freq is actually be refined, so we should tune shift fitst by multiplying with Kmag
 % Tfil = exp(-log(2)*(2/f3dB*freq).^n);	% n order gaussian filter VPI
 %% Tfil = (exp(-log(2)*(2/f3dB*(freq-shift*delta_freq)).^n)+exp(-log(2)*(2/f3dB*(freq+shift*delta_freq)).^n))/2;	% n order gaussian filter VPI
-Tfil = (exp(-log(2)*(2/f3dB*((freq-shift*delta_freq)*Kmag)).^n)+exp(-log(2)*(2/f3dB*((freq+shift*delta_freq)*Kmag)).^n))/2;	% n order gaussian filter VPI
+Tfil = (exp(-log(2)*(2/f3dB*(freq-shift*delta_freq)).^n)+exp(-log(2)*(2/f3dB*(freq+shift*delta_freq)).^n))/2;
 Tfil = Tfil *max(Ioutfreq(ind));
+% Tfil = Tfil/max(Tfil);
 hold on
 plot(freq,Tfil,'r');
 
