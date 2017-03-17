@@ -12,7 +12,7 @@ lamda = 639.5e-9;	% m
 Fcar = c_const/lamda;
 
 Ts = 0.1e-12;		% 0.1 ps
-N = 2^14;			% number of samples in a block. Tblk = N * Ts = 102.4 ps
+N = 2^10;			% number of samples in a block. Tblk = N * Ts = 102.4 ps
 
 % Amplifier parameters:
   GssdB = 20;		% (dB)
@@ -26,8 +26,9 @@ N = 2^14;			% number of samples in a block. Tblk = N * Ts = 102.4 ps
 
 % filter order
     n=1;
-% index of the amount of gain line splitting
+% the percentage of gain line splitting compared with all N points
     shift = 20;
+    shift = N*shift/100;
 
 % modulator parameters
   % alpha = -0.07;
@@ -68,7 +69,7 @@ for ii = 1:N_pass
                                             % multiply by a gaussian-like filter in the time domain
 
 	% Eo = modInt(Eo,alpha,epsilon,m,fm,0.5);
-	%% Eo = modInt_theory(Eo,m,fm);    
+	Eo = modInt_theory(Eo,m,fm);    
 
 	Eo = Eo*atten;
 	if mod(ii,N_pass/50)==0 % display part of the N_pass

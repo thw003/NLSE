@@ -26,8 +26,9 @@ N = 2^10;			% number of samples in a block. Tblk = N * Ts = 102.4 ps
 
 % filter order
     n=1;
-% index of the amount of gain line splitting
-    shift = 20;
+% the percentage of gain line splitting compared with all N points
+    shift = 20;             % %
+    shift = N*shift/100;    % amount of index
 
 % modulator parameters
   % alpha = -0.07;
