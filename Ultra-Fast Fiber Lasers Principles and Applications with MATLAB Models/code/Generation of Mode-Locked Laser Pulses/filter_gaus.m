@@ -17,6 +17,6 @@ k = k';
 n = 2*n;
 % Eout = Ein.*exp(-log(sqrt(2))*(2/f3dB/Ts/N)^n*(k.^n));
 % n order gaussian filter
-temp = log(sqrt(2))*(2/f3dB/Ts/N)^n;
+temp = log(sqrt(2))*(2/f3dB/Ts/N)^n;    % log=ln
 Eout = Ein.*exp(-temp*(k.^n));	% n order gaussian filter VPI
 end

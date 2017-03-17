@@ -27,7 +27,7 @@ N = 1024;			% number of samples in a block. Tblk = N * Ts = 102.4 ps
 % filter order
     n=1;
 % index of the amount of gain line splitting
-    shift = 6
+    shift = 6;
 
 % modulator parameters
   alpha = -0.07;
@@ -51,26 +51,32 @@ Ein = wgn(N,1,-40,'complex');
 
 Eout = Ein;
 Eo = Ein;
-N_pass = 500;
+N_pass = 10000;
 % N_pass = 50;
 for ii = 1:N_pass
-    fprintf('----------------------------\n', ii);
-    fprintf('pass %d begin\n', ii);
+    %% fprintf('----------------------------\n', ii);
+    %% fprintf('pass %d begin\n', ii);
 	[Eo,G] = AmpSimpNonoise(Eo,GssdB,PoutsatdB); % no noise
 	Eo = fft(Eo);
 	% Eo = filter_gaus(Eo,f3dB,n);  % multiply by a gaussian filter in the frequency domain, which is equivalent to convolve by a gaussian filter in the time domain.
-	Eo = filter_gaus_stark_shift(Eo,f3dB,shift,n);
+	% Eo = filter_gaus_stark_shift(Eo,f3dB,shift);
+	Eo = filter_lorentz_stark_shift(Eo,f3dB,shift);
 	Eo = ifft(Eo);
 	% Eo = modInt(Eo(1:N),alpha,epsilon,m,fm,0.5);
-	Eo = modInt_theory(Eo(1:N),m,fm);   % Eo(1:N) is a abbreviation for Eo(1:N,1), which represents the 1'th row to the N'th row, 1th column.
-                                        % A(a:b,c:d) represents the overlay of a'th row to b'th row and c'th column to d'th column.
-                                        % multiply by a gaussian-like filter in the time domain
+	% Eo = modInt_theory(Eo(1:N),m,fm);     % Eo(1:N) is a abbreviation for Eo(1:N,1), which represents the 1'th row to the N'th row, 1th column.
+                                            % A(a:b,c:d) represents the overlay of a'th row to b'th row and c'th column to d'th column.
+                                            % multiply by a gaussian-like filter in the time domain
+
+	% Eo = modInt(Eo,alpha,epsilon,m,fm,0.5);
+	Eo = modInt_theory(Eo,m,fm);
+
+	Eo = modInt_theory(Eo,m,fm);    
 	Eo = Eo*atten;
 	if mod(ii,N_pass/50)==0 % display part of the N_pass
-		Eout = [Eout, Eo];  % add noise
+		Eout = [Eout, Eo];  % add Eo to Eout. including noise, so the column of Eout is one more.
 	end
-    fprintf('pass %d end\n', ii);
-    fprintf('----------------------------\n', ii);
+    %% fprintf('pass %d end\n', ii);
+    %% fprintf('----------------------------\n', ii);
 end
 Eout = Eout/atten;
 close all
@@ -121,10 +127,10 @@ plot(freq,Ioutfreq(ind));
 
 n = 2*n;
 
-shift = shift * Kmag    % freq is actually be refined, so we should tune shift fitst by multiplying with Kmag
-% Tfil = exp(-log(2)*(2/f3dB*freq).^n);	% n order gaussian filter VPI
-%% Tfil = (exp(-log(2)*(2/f3dB*(freq-shift*delta_freq)).^n)+exp(-log(2)*(2/f3dB*(freq+shift*delta_freq)).^n))/2;	% n order gaussian filter VPI
-Tfil = (exp(-log(2)*(2/f3dB*(freq-shift*delta_freq)).^n)+exp(-log(2)*(2/f3dB*(freq+shift*delta_freq)).^n))/2;
+shift = shift * Kmag;    % freq is actually be refined, so we should tune shift fitst by multiplying with Kmag
+% Tfil = (exp(-log(2)*(2/f3dB*(freq-shift*delta_freq)).^n)+exp(-log(2)*(2/f3dB*(freq+shift*delta_freq)).^n))/2;
+Tfil =(1./((f3dB/2)^2+(freq-shift*delta_freq).^2) + ...
+       1./((f3dB/2)^2+(freq+shift*delta_freq).^2))*f3dB/(2*pi)/2; 
 Tfil = Tfil/max(Tfil);  % normalization
 hold on
 plot(freq,Tfil,'r');
