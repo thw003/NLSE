@@ -26,6 +26,8 @@ N = 1024;			% number of samples in a block. Tblk = N * Ts = 102.4 ps
 
 % filter order
     n=1;
+% index of the amount of gain line splitting
+    shift = 10
 
 % modulator parameters
   alpha = -0.07;
@@ -33,7 +35,11 @@ N = 1024;			% number of samples in a block. Tblk = N * Ts = 102.4 ps
   
 % modulation parameters
   m = 0.5;			% modulation index, by increasing it, the spectra is broadened, and the pulse is shortened.
-  fm = 10e10;		% modulation frequency, by increasing it, the spectra is broadened and the pulse is shortened.
+                    % it can be considered as a magnification factor of fm
+  fm = 10e9;		% modulation frequency, 
+                    % by increasing it, the shape will be narrowed
+                    % when it is small than f3dB, when increasing it, the spectra is broadened and the pulse is shortened.
+                    % while it exceed f3dB, it will only modulate single frequency, pulse will not form.
 
 % Loss
   loss = 10;			% dB
@@ -52,11 +58,13 @@ for ii = 1:N_pass
     fprintf('pass %d begin\n', ii);
 	[Eo,G] = AmpSimpNonoise(Eo,GssdB,PoutsatdB); % no noise
 	Eo = fft(Eo);
-	Eo = filter_gaus(Eo,f3dB,n);
+	% Eo = filter_gaus(Eo,f3dB,n);  % multiply by a gaussian filter in the frequency domain, which is equivalent to convolve by a gaussian filter in the time domain.
+	Eo = filter_gaus_stark_shift(Eo,f3dB,shift,n);
 	Eo = ifft(Eo);
 	% Eo = modInt(Eo(1:N),alpha,epsilon,m,fm,0.5);
 	Eo = modInt_theory(Eo(1:N),m,fm);   % Eo(1:N) is a abbreviation for Eo(1:N,1), which represents the 1'th row to the N'th row, 1th column.
                                         % A(a:b,c:d) represents the overlay of a'th row to b'th row and c'th column to d'th column.
+                                        % multiply by a gaussian-like filter in the time domain
 	Eo = Eo*atten;
 	if mod(ii,N_pass/50)==0 % display part of the N_pass
 		Eout = [Eout, Eo];  % add noise
@@ -94,7 +102,7 @@ N1 = size(Eout,2);
 % pulse_beta = (dPhi(N/2+100) - dPhi(N/2-100))/200/Ts/Ts;
 %  chirp = pulse_beta/pulse_alpha
 
-Kmag = 6;   % this factor is proportional to the refinement (interval between points) of the transformed frequency data;
+Kmag = 3;   % this factor is proportional to the refinement (interval between points) of the transformed frequency data;
             % the total frequency range is determined by the total time range and will not be changed. By changing Kmag, we are changing the number of points in the frequency domain, thus the refinement.
 Nplot = 100;    % plotted frequency points, it determines the plotted frequency range, not the refinement. 
                 % this factor is related to the index of the frequency points
@@ -112,7 +120,9 @@ plot(freq,Ioutfreq(ind));
 
 n = 2*n;
 
-Tfil = exp(-log(2)*(2/f3dB*freq).^n);	% n order gaussian filter VPI
+% Tfil = exp(-log(2)*(2/f3dB*freq).^n);	% n order gaussian filter VPI
+%% Tfil = (exp(-log(2)*(2/f3dB*(freq-shift*delta_freq)).^n)+exp(-log(2)*(2/f3dB*(freq+shift*delta_freq)).^n))/2;	% n order gaussian filter VPI
+Tfil = (exp(-log(2)*(2/f3dB*((freq-shift*delta_freq)*Kmag)).^n)+exp(-log(2)*(2/f3dB*((freq+shift*delta_freq)*Kmag)).^n))/2;	% n order gaussian filter VPI
 Tfil = Tfil *max(Ioutfreq(ind));
 hold on
 plot(freq,Tfil,'r');
@@ -121,5 +131,5 @@ plot(freq,Tfil,'r');
 % gaussFit(Iout(:,N1));
 
 pulseBW = fwhm(Ioutfreq(ind))/Ts/N/Kmag
-Tp = fwhm(Iout(:,N1))*Ts
+Tp = fwhm(Iout(:,N1))*Ts*1e12   % ps
 TBP = pulseBW*Tp
