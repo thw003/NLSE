@@ -9,7 +9,7 @@ global Ts;			% sampling period
 global Fcar;		% carrier frequency (optical frequency)
 c_const = 3e8;		% speed of light
 
-lamda = 639.5e-9;	% m
+lamda = 639.44e-9;	% m
 Fcar = c_const/lamda;
 
 Ts = 0.01e-12;		% 0.01 ps
@@ -103,7 +103,7 @@ xlabel('t (ps)', 'FontSize',fontSize);
 
 % set(gca,'YTick',yy_mark);
 % set(gca,'YTickLabel',yy_tick);
-ylabel('Pass number', 'FontSize',fontSize));
+ylabel('Pass number', 'FontSize',fontSize);
 
 set(gca,'ZTick',[0:0.5:1]);
 % zlabel('intensity (W)');
@@ -148,6 +148,22 @@ Tfil = 1./((f3dB/2)^2+(freq-shift*delta_freq).^2) + ...
 Tfil = Tfil/max(Tfil);  % normalization
 hold on
 plot(freq,Tfil,'r');
+
+figure(3)
+wavelength = c_const./(freq+Fcar);
+plot(wavelength,Ioutfreq(ind));
+hold on
+plot(wavelength,Tfil,'g')
+hold on
+% -------------- Read spectrum from data ---------
+Data = load('Experiment data.txt');
+plot(Data(:,1)*1e-9, Data(:,2),'r');
+
+% export gain line and fitted spectral
+gain_line = [wavelength*1e9,Tfil];
+save Lorentzian_gain_line.txt -ascii gain_line;
+stimulated_spectrum = [wavelength*1e9,Ioutfreq(ind)];
+save stimulatedspectrum.txt -ascii stimulated_spectrum;
 
 % plot the gaussian fit curve
 % gaussFit(Iout(:,N1));
